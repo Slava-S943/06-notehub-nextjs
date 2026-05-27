@@ -12,6 +12,7 @@ import Modal from '@/components/Modal/Modal';
 import NoteForm from '@/components/NoteForm/NoteForm';
 
 import type { FetchNotesResponse } from '@/lib/api';
+import css from './NotesPage.module.css';
 
 export default function NotesClient() {
   const [page, setPage] = useState<number>(1);
@@ -38,10 +39,14 @@ export default function NotesClient() {
   if (isError) return <p>Could not fetch notes.</p>;
 
   return (
-    <div>
-      <button onClick={() => setIsModalOpen(true)}>Create note</button>
+    <div className={css.app}>
+      <div className={css.toolbar}>
+        <button onClick={() => setIsModalOpen(true)} className={css.button}>
+          Create note
+        </button>
 
-      <SearchBox value={search} onChange={handleSearch} />
+        <SearchBox value={search} onChange={handleSearch} />
+      </div>
 
       {data && <NoteList notes={data.notes} />}
 
