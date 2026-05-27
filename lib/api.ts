@@ -52,13 +52,13 @@ export const createNote = async (body: CreateNoteData): Promise<Note> => {
 };
 
 export const deleteNote = async (id: string): Promise<{ id: string }> => {
-  const { data } = await api.delete(`/notes/${id}`);
+  const { data } = await api.delete<{ id: string }>(`/notes/${id}`);
 
   return data;
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const { data } = await api.get(`/notes/${id}`);
+  const { data } = await api.get<Note>(`/notes/${id}`);
 
   return data;
 };

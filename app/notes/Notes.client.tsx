@@ -1,23 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { fetchNotes } from '@/lib/api';
+import NoteList from '@/components/NoteList/NoteList';
 import SearchBox from '@/components/SearchBox/SearchBox';
 import Pagination from '@/components/Pagination/Pagination';
+import Modal from '@/components/Modal/Modal';
+import NoteForm from '@/components/NoteForm/NoteForm';
+
+import type { FetchNotesResponse } from '@/lib/api';
 
 export default function NotesClient() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleSearch = useDebouncedCallback((value: string) => {
     setSearch(value);
     setPage(1);
   }, 500);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
     queryKey: ['notes', page, search],
     queryFn: () =>
       fetchNotes({
@@ -25,6 +31,7 @@ export default function NotesClient() {
         perPage: 12,
         search,
       }),
+    placeholderData: keepPreviousData,
   });
 
   if (isLoading) return <p>Loading, please wait...</p>;
@@ -32,19 +39,23 @@ export default function NotesClient() {
 
   return (
     <div>
+      <button onClick={() => setIsModalOpen(true)}>Create note</button>
+
       <SearchBox value={search} onChange={handleSearch} />
 
-      {data?.notes.map(note => (
-        <div key={note.id} style={{ borderBottom: '1px solid #ddd', marginBottom: 12 }}>
-          <h3>{note.title}</h3>
-          <p>{note.content}</p>
-        </div>
-      ))}
+      {data && <NoteList notes={data.notes} />}
 
       {data && data.totalPages > 1 && (
-        <div style={{ marginTop: 20 }}>
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
-        </div>
+        <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+      )}
+
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          <NoteForm
+            onSuccess={() => setIsModalOpen(false)}
+            onCancel={() => setIsModalOpen(false)}
+          />
+        </Modal>
       )}
     </div>
   );
