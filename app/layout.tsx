@@ -22,7 +22,8 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
       <body>
         <TanStackProvider>
           <Header />
-          {children}
+
+          <main className="main">{children}</main>
           <Footer />
         </TanStackProvider>
       </body>
